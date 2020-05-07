@@ -153,7 +153,7 @@ dados = {
     'CPF': cpf,
     'DDD': ddd,
     'TELEFONE': telefone,
-    'RUA': rua,
+    'ENDERECO': rua,
     'NUMERO': numero,
     'COMPLEMENTO': complemento,
     'BAIRRO': bairro,
@@ -168,4 +168,4 @@ dados = {
 
 output = pd.DataFrame(dados)
 
-#output.to_excel('cadastrar_clientes.xlsx', sheet_name='Cadastrar', index=None)
+output.to_excel('cadastrar_clientes.xlsx', sheet_name='Cadastrar', index=None)
