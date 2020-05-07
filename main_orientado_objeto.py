@@ -18,13 +18,20 @@ class Cliente:
         self.primeiro_nome = archive['Nome do comprador'][index]
         self.segundo_nome = archive['Sobrenome do comprador'][index]
         self.cpf = archive['CPF'][index]
+        self.cnpj = ' '
         self.ddd = '00'
         self.telefone = '99999999'
         self.endereco = Endereco(archive, index)
         self.juntar_nomes()
+        self.cpf_or_cnpj()
 
     def juntar_nomes(self):
         self.nome_completo = str(self.primeiro_nome) + ' ' + str(self.segundo_nome)
+
+    def cpf_or_cnpj(self):
+        if len(str(self.cpf)) != 11:
+            self.cnpj = self.cpf
+            self.cpf = ' '
 
 
 class Endereco:
@@ -38,6 +45,7 @@ class Endereco:
         self.estado = archive['Estado'][index]
         self.cep = archive['CEP'][index]
         self.separar_endereco()
+        self.estado_2_uf()
 
     def separar_endereco(self):
         if '/' in self.endereco_bruto:
@@ -61,6 +69,20 @@ class Endereco:
             self.estado = ' '
             self.cep = ' '
 
+    def estado_2_uf(self):
+        self.estado = str(self.estado)
+        if self.estado != ' ':
+            lista_estados = ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Distrito Federal',
+                             'Espirito Santo', 'Goiás', 'Maranhão', 'Mato Grosso', 'Mato Grosso do Sul',
+                             'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí', 'Rio de Janeiro',
+                             'Rio Grande do Norte', 'Rio Grande do Sul', 'Rondônia', 'Roraima', 'Santa Catarina',
+                             'São Paulo', 'Sergipe', 'Tocantins']
+            lista_ufs = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB',
+                         'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO']
+            for x in range(len(lista_estados)):
+                if self.estado == lista_estados[x]:
+                    self.estado = lista_ufs[x]
+
 
 file = pd.read_excel('vendas.xlsx', converters={'CPF': str, 'CEP': str, 'Endereço': str}, skiprows=1)
 vendas = []
@@ -73,6 +95,7 @@ for i in range(len(file['Nome do comprador'])):
         print('Data: ', venda.data)
         print('Nome: ', venda.cliente.nome_completo)
         print('CPF: ', venda.cliente.cpf)
+        print('CNPJ: ', venda.cliente.cnpj)
         print('DDD: ', venda.cliente.ddd)
         print('Telefone: ', venda.cliente.telefone)
         print('Rua: ', venda.cliente.endereco.rua)
@@ -90,6 +113,7 @@ for i in range(len(file['Nome do comprador'])):
 data = []
 nome = []
 cpf = []
+cnpj = []
 ddd = []
 telefone = []
 rua = []
@@ -108,6 +132,7 @@ for venda in vendas:
     data.append(venda.data)
     nome.append(unidecode(str(venda.cliente.nome_completo).upper()))
     cpf.append(venda.cliente.cpf)
+    cnpj.append(venda.cliente.cnpj)
     ddd.append(venda.cliente.ddd)
     telefone.append(venda.cliente.telefone)
     rua.append(unidecode(str(venda.cliente.endereco.rua).upper()))
@@ -143,4 +168,4 @@ dados = {
 
 output = pd.DataFrame(dados)
 
-output.to_csv('cadastrar_clientes.csv')
+#output.to_excel('cadastrar_clientes.xlsx', sheet_name='Cadastrar', index=None)
