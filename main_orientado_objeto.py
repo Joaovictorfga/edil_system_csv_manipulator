@@ -8,21 +8,20 @@ class Venda:
         self.cliente = Cliente(archive, index)
         self.produto = archive['Título do anúncio'][index]
         self.quantidade = archive['Unidades'][index]
-        self.valor_total = archive['Total (BRL)'][index]
+        self.valor_total = archive['Ingresos (BRL)'][index]
+        if self.valor_total < 99:
+            self.valor_total = self.valor_total + archive['Custo de envio'][index]
         self.regiao = 'ML'
 
 
 class Cliente:
     def __init__(self, archive, index):
-        self.nome_completo = 'NOME COMPLETO'
-        self.primeiro_nome = archive['Nome do comprador'][index]
-        self.segundo_nome = archive['Sobrenome do comprador'][index]
+        self.nome_completo = archive['Comprador'][index]
         self.cpf = archive['CPF'][index]
         self.cnpj = ' '
         self.ddd = '00'
         self.telefone = '99999999'
         self.endereco = Endereco(archive, index)
-        self.juntar_nomes()
         self.cpf_or_cnpj()
 
     def juntar_nomes(self):
@@ -84,11 +83,11 @@ class Endereco:
                     self.estado = lista_ufs[x]
 
 
-file = pd.read_excel('vendas.xlsx', converters={'CPF': str, 'CEP': str, 'Endereço': str}, skiprows=1)
+file = pd.read_excel('vendas.xlsx', converters={'CPF': str, 'CEP': str, 'Endereço': str}, skiprows=2)
 vendas = []
 
-for i in range(len(file['Nome do comprador'])):
-    if not file['Nome do comprador'].isnull()[i]:
+for i in range(len(file['Comprador'])):
+    if type(file['Comprador'][i]) != float:
         venda = Venda(file, i)
         vendas.append(venda)
         print(' ')
@@ -151,6 +150,7 @@ dados = {
     'DATA': data,
     'NOME': nome,
     'CPF': cpf,
+    'CNPJ': cnpj,
     'DDD': ddd,
     'TELEFONE': telefone,
     'ENDERECO': rua,
